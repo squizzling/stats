@@ -7,9 +7,11 @@ import (
 
 	"github.com/alexcesaro/statsd"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 
 	_ "github.com/squizzling/stats/internal/emitters/meminfo"
 	_ "github.com/squizzling/stats/internal/emitters/procstat"
+	_ "github.com/squizzling/stats/internal/emitters/sysfs"
 	_ "github.com/squizzling/stats/internal/emitters/zfs"
 
 	"github.com/squizzling/stats/internal/istats"
@@ -22,6 +24,7 @@ func createLogger() *zap.Logger {
 	cfg.OutputPaths = []string{"stdout"}
 	cfg.ErrorOutputPaths = []string{"stdout"}
 	cfg.DisableStacktrace = true
+	cfg.Level.SetLevel(zapcore.InfoLevel)
 	logger, err := cfg.Build()
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "error creating logger: %v\n", err)

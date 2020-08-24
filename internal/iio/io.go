@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"io/ioutil"
+	"os"
 	"strconv"
 
 	"go.uber.org/zap"
@@ -54,4 +55,19 @@ func NextInt64(data []byte) (int64, []byte, error) {
 		return 0, nil, err
 	}
 	return value, remainder, nil
+}
+
+func ReadEntries(logger *zap.Logger, path string) []os.FileInfo {
+	dir, err := os.Open(path)
+	if err != nil {
+		logger.Warn("failed to open directory for reading", zap.String("path", path), zap.Error(err))
+		return nil
+	}
+	entries, err := dir.Readdir(-1)
+	_ = dir.Close()
+	if err != nil {
+		logger.Warn("failed to read directories", zap.String("path", path), zap.Error(err))
+		return nil
+	}
+	return entries
 }
