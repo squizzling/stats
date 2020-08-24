@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -10,14 +11,38 @@ import (
 )
 
 type Opts struct {
-	Target   string        `short:"t" long:"target"   required:"true" description:"target statsd address"`
-	Host     *string       `          long:"host"                     description:"local hostname"       `
-	Interval time.Duration `short:"i" long:"interval" default:"1s"    description:"send interval"        `
+	Target        string             `short:"t" long:"target"   required:"true" description:"target statsd address"`
+	Host          *string            `          long:"host"                     description:"local hostname"       `
+	List          bool               `short:"l" long:"list"                     description:"List emitters"        `
+	Disable       func(string) error `short:"d" long:"disable"                  description:"Disable emitter"      `
+	Enable        func(string) error `short:"e" long:"enable"                   description:"Enable emitter"       `
+	Interval      time.Duration      `short:"i" long:"interval" default:"1s"    description:"send interval"        `
+	enableDisable *bool
+	selected      map[string]struct{}
+}
+
+func funcMakeEnableDisable(opts *Opts, enable bool) func(s string) error {
+	return func(s string) error {
+		if opts.enableDisable == nil {
+			opts.enableDisable = &enable
+		}
+		if *opts.enableDisable == enable {
+			opts.selected[s] = struct{}{}
+		} else {
+			return errors.New("enable and disable are mutually exclusive")
+		}
+		return nil
+	}
 }
 
 func parseArgs(args []string) *Opts {
-	var opts Opts
-	parser := flags.NewParser(&opts, flags.HelpFlag|flags.PassDoubleDash)
+	opts := &Opts{}
+
+	opts.selected = make(map[string]struct{})
+	opts.Enable = funcMakeEnableDisable(opts, true)
+	opts.Disable = funcMakeEnableDisable(opts, false)
+
+	parser := flags.NewParser(opts, flags.HelpFlag|flags.PassDoubleDash)
 	positional, err := parser.ParseArgs(args)
 	if err != nil {
 		if !isHelp(err) {
@@ -49,7 +74,7 @@ func parseArgs(args []string) *Opts {
 		opts.Target = opts.Target + ":8125"
 	}
 
-	return &opts
+	return opts
 }
 
 // isHelp is a helper to test the error from ParseArgs() to

@@ -1,10 +1,15 @@
-package stats
+package istats
 
 import (
 	"strings"
 
 	"github.com/alexcesaro/statsd"
+
+	"github.com/squizzling/stats/pkg/statser"
 )
+
+var _ = statser.Pool(&Pool{})
+var _ = statser.Statser(&statsd.Client{})
 
 type Pool struct {
 	base    *statsd.Client
@@ -20,7 +25,7 @@ func NewPool(c *statsd.Client) *Pool {
 	}
 }
 
-func (p *Pool) Get(tags ...string) *statsd.Client {
+func (p *Pool) Get(tags ...string) statser.Statser {
 	s := strings.Join(tags, "||")
 	if c, ok := p.clients[s]; ok {
 		return c

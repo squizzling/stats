@@ -6,17 +6,18 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/squizzling/stats/internal/emitter"
-	"github.com/squizzling/stats/internal/emitter/zfs/kstat"
-	"github.com/squizzling/stats/internal/stats"
+	"github.com/squizzling/stats/internal/emitters/zfs/kstat"
+	"github.com/squizzling/stats/pkg/emitter"
+	"github.com/squizzling/stats/pkg/sources"
+	"github.com/squizzling/stats/pkg/statser"
 )
 
 type ZFSEmitter struct {
 	logger    *zap.Logger
-	statsPool *stats.Pool
+	statsPool statser.Pool
 }
 
-func NewEmitter(logger *zap.Logger, statsPools *stats.Pool) emitter.Emitter {
+func NewEmitter(logger *zap.Logger, statsPools statser.Pool) emitter.Emitter {
 	return &ZFSEmitter{
 		logger:    logger,
 		statsPool: statsPools,
@@ -77,4 +78,8 @@ func (e *ZFSEmitter) Emit() {
 			client.Gauge(metricName, v)
 		}
 	}
+}
+
+func init() {
+	sources.Sources["zfs"] = NewEmitter
 }

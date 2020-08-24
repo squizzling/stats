@@ -1,20 +1,20 @@
 package meminfo
 
 import (
-	"github.com/alexcesaro/statsd"
 	"go.uber.org/zap"
 
-	"github.com/squizzling/stats/internal/emitter"
-	"github.com/squizzling/stats/internal/stats"
+	"github.com/squizzling/stats/pkg/emitter"
+	"github.com/squizzling/stats/pkg/sources"
+	"github.com/squizzling/stats/pkg/statser"
 )
 
 type MemInfoEmitter struct {
 	logger         *zap.Logger
-	statsClient    *statsd.Client
+	statsClient    statser.Statser
 	trackedMetrics map[string]string
 }
 
-func NewEmitter(logger *zap.Logger, statsPool *stats.Pool) emitter.Emitter {
+func NewEmitter(logger *zap.Logger, statsPool statser.Pool) emitter.Emitter {
 	return &MemInfoEmitter{
 		logger:      logger,
 		statsClient: statsPool.Get(),
@@ -43,4 +43,8 @@ func (mse *MemInfoEmitter) Emit() {
 	for metricSuffix, memStatName := range mse.trackedMetrics {
 		mse.tryEmit(ms, metricSuffix, memStatName)
 	}
+}
+
+func init() {
+	sources.Sources["meminfo"] = NewEmitter
 }

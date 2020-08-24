@@ -4,26 +4,26 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/alexcesaro/statsd"
 	"go.uber.org/zap"
 
-	"github.com/squizzling/stats/internal/emitter"
-	"github.com/squizzling/stats/internal/stats"
+	"github.com/squizzling/stats/pkg/emitter"
+	"github.com/squizzling/stats/pkg/sources"
+	"github.com/squizzling/stats/pkg/statser"
 )
 
 type ProcStatEmitter struct {
 	logger    *zap.Logger
-	statsPool *stats.Pool
+	statsPool statser.Pool
 }
 
-func NewEmitter(logger *zap.Logger, statsPools *stats.Pool) emitter.Emitter {
+func NewEmitter(logger *zap.Logger, statsPools statser.Pool) emitter.Emitter {
 	return &ProcStatEmitter{
 		logger:    logger,
 		statsPool: statsPools,
 	}
 }
 
-func emitProcStatCpu(c *statsd.Client, s string, cpu *ProcStatCpu) {
+func emitProcStatCpu(c statser.Statser, s string, cpu *ProcStatCpu) {
 	c.Gauge(fmt.Sprintf("procstat.cpu.%s.user", s), cpu.User)
 	c.Gauge(fmt.Sprintf("procstat.cpu.%s.nice", s), cpu.Nice)
 	c.Gauge(fmt.Sprintf("procstat.cpu.%s.system", s), cpu.System)
@@ -58,4 +58,8 @@ func (pse *ProcStatEmitter) Emit() {
 	for idx, perCPUStats := range ps.CPUs {
 		emitProcStatCpu(pse.statsPool.Get("cpu", strconv.Itoa(idx)), "per", perCPUStats)
 	}
+}
+
+func init() {
+	sources.Sources["procstat"] = NewEmitter
 }

@@ -8,17 +8,20 @@ import (
 	"github.com/alexcesaro/statsd"
 	"go.uber.org/zap"
 
-	"github.com/squizzling/stats/internal/emitter"
-	"github.com/squizzling/stats/internal/emitter/meminfo"
-	"github.com/squizzling/stats/internal/emitter/procstat"
-	"github.com/squizzling/stats/internal/emitter/zfs"
-	"github.com/squizzling/stats/internal/stats"
+	_ "github.com/squizzling/stats/internal/emitters/meminfo"
+	_ "github.com/squizzling/stats/internal/emitters/procstat"
+	_ "github.com/squizzling/stats/internal/emitters/zfs"
+
+	"github.com/squizzling/stats/internal/istats"
+	"github.com/squizzling/stats/pkg/emitter"
+	"github.com/squizzling/stats/pkg/sources"
 )
 
 func createLogger() *zap.Logger {
 	cfg := zap.NewDevelopmentConfig()
 	cfg.OutputPaths = []string{"stdout"}
 	cfg.ErrorOutputPaths = []string{"stdout"}
+	cfg.DisableStacktrace = true
 	logger, err := cfg.Build()
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "error creating logger: %v\n", err)
@@ -48,21 +51,35 @@ func createStatsClient(logger *zap.Logger, target, host string) *statsd.Client {
 
 func main() {
 	opts := parseArgs(os.Args[1:])
+
+	if opts.List {
+		for key, _ := range sources.Sources {
+			fmt.Printf("- %s\n", key)
+		}
+		return
+	}
+
 	logger := createLogger()
 	defer func() {
 		_ = logger.Sync()
 	}()
-	statsPool := stats.NewPool(createStatsClient(logger, opts.Target, *opts.Host))
-
-	emitterFactories := []emitter.EmitterFactory{
-		zfs.NewEmitter,
-		procstat.NewEmitter,
-		meminfo.NewEmitter,
-	}
+	statsPool := istats.NewPool(createStatsClient(logger, opts.Target, *opts.Host))
 
 	var emitters []emitter.Emitter
-	for _, factory := range emitterFactories {
+	for key, factory := range sources.Sources {
+		if opts.enableDisable != nil {
+			_, ok := opts.selected[key]
+			delete(opts.selected, key)
+			if ok != *opts.enableDisable {
+				continue
+			}
+		}
+		logger.Info("enabled", zap.String("emitter", key))
 		emitters = append(emitters, factory(logger, statsPool))
+	}
+
+	for key, _ := range opts.selected {
+		logger.Warn("unrecognized emitter", zap.String("emitter", key))
 	}
 
 	for {
