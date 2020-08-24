@@ -19,12 +19,16 @@ import (
 	"github.com/squizzling/stats/pkg/sources"
 )
 
-func createLogger() *zap.Logger {
+func createLogger(verbose bool) *zap.Logger {
 	cfg := zap.NewDevelopmentConfig()
 	cfg.OutputPaths = []string{"stdout"}
 	cfg.ErrorOutputPaths = []string{"stdout"}
 	cfg.DisableStacktrace = true
-	cfg.Level.SetLevel(zapcore.InfoLevel)
+	if verbose {
+		cfg.Level.SetLevel(zapcore.DebugLevel)
+	} else {
+		cfg.Level.SetLevel(zapcore.InfoLevel)
+	}
 	logger, err := cfg.Build()
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "error creating logger: %v\n", err)
@@ -62,7 +66,7 @@ func main() {
 		return
 	}
 
-	logger := createLogger()
+	logger := createLogger(opts.Verbose)
 	defer func() {
 		_ = logger.Sync()
 	}()

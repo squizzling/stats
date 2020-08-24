@@ -11,12 +11,13 @@ import (
 )
 
 type Opts struct {
-	Target        string             `short:"t" long:"target"   required:"true" description:"target statsd address"`
-	Host          *string            `          long:"host"                     description:"local hostname"       `
-	List          bool               `short:"l" long:"list"                     description:"List emitters"        `
-	Disable       func(string) error `short:"d" long:"disable"                  description:"Disable emitter"      `
-	Enable        func(string) error `short:"e" long:"enable"                   description:"Enable emitter"       `
-	Interval      time.Duration      `short:"i" long:"interval" default:"1s"    description:"send interval"        `
+	Target        string             `short:"t" long:"target"   required:"true" description:"target statsd address" `
+	Host          *string            `          long:"host"                     description:"local hostname"        `
+	List          bool               `short:"l" long:"list"                     description:"List emitters"         `
+	Disable       func(string) error `short:"d" long:"disable"                  description:"Disable emitter"       `
+	Enable        func(string) error `short:"e" long:"enable"                   description:"Enable emitter"        `
+	Interval      time.Duration      `short:"i" long:"interval" default:"1s"    description:"send interval"         `
+	Verbose       bool               `short:"v" long:"verbose"                  description:"Enable verbose logging"`
 	enableDisable *bool
 	selected      map[string]struct{}
 }
