@@ -12,6 +12,7 @@ import (
 	_ "github.com/squizzling/stats/internal/emitters/meminfo"
 	_ "github.com/squizzling/stats/internal/emitters/procstat"
 	_ "github.com/squizzling/stats/internal/emitters/sysfs"
+	_ "github.com/squizzling/stats/internal/emitters/systemd"
 	_ "github.com/squizzling/stats/internal/emitters/zfs"
 
 	"github.com/squizzling/stats/internal/istats"
@@ -82,7 +83,13 @@ func main() {
 			}
 		}
 		logger.Info("enabled", zap.String("emitter", key))
-		emitters = append(emitters, factory(logger, statsPool))
+
+		e := factory(logger, statsPool)
+		if e == nil {
+			logger.Error("emitter creation failed", zap.String("emitter", key))
+		} else {
+			emitters = append(emitters, e)
+		}
 	}
 
 	for key, _ := range opts.selected {
