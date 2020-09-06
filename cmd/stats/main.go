@@ -11,6 +11,7 @@ import (
 
 	_ "github.com/squizzling/stats/internal/emitters/meminfo"
 	_ "github.com/squizzling/stats/internal/emitters/procstat"
+	_ "github.com/squizzling/stats/internal/emitters/smart"
 	_ "github.com/squizzling/stats/internal/emitters/sysfs"
 	_ "github.com/squizzling/stats/internal/emitters/systemd"
 	_ "github.com/squizzling/stats/internal/emitters/zfs"
@@ -97,7 +98,7 @@ func main() {
 	}
 
 	for {
-		time.Sleep(time.Second)
+		time.Sleep(8 * time.Second)
 		logger.Info("emitting")
 		for _, e := range emitters {
 			e.Emit()
