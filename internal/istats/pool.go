@@ -34,3 +34,9 @@ func (p *Pool) Get(tags ...string) statser.Statser {
 	p.clients[s] = c
 	return c
 }
+
+func (p *Pool) GetFake(tags ...string) statser.Statser {
+	return &fakeStatser{
+		tags: tags,
+	}
+}
