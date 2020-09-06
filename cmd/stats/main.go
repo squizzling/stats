@@ -98,10 +98,10 @@ func main() {
 	}
 
 	for {
-		time.Sleep(8 * time.Second)
 		logger.Info("emitting")
 		for _, e := range emitters {
 			e.Emit()
 		}
+		time.Sleep(8 * time.Second)
 	}
 }
