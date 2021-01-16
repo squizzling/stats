@@ -18,6 +18,7 @@ import (
 	_ "github.com/squizzling/stats/internal/emitters/sysfs"
 	_ "github.com/squizzling/stats/internal/emitters/systemd"
 	_ "github.com/squizzling/stats/internal/emitters/zfs"
+	"github.com/squizzling/stats/internal/ticker"
 	"github.com/squizzling/stats/pkg/statser"
 
 	"github.com/squizzling/stats/internal/istats"
@@ -109,11 +110,12 @@ func main() {
 		logger.Warn("unrecognized emitter", zap.String("emitter", key))
 	}
 
-	for {
+
+	tckr := ticker.NewAlignedTicker(10*time.Second, 1*time.Second)
+	for range tckr.C {
 		logger.Info("emitting")
 		for _, e := range emitters {
 			e.Emit()
 		}
-		time.Sleep(8 * time.Second)
 	}
 }
