@@ -1,3 +1,9 @@
 /stats
 /.idea/
-/vendor/
+# keep karalabe/hid using stupid ugly methods because go is working as intended (golang/go#26366)
+vendor/*
+vendor/github.com/*
+vendor/github.com/karalabe/*
+!vendor/github.com/
+!vendor/github.com/karalabe/
+!vendor/github.com/karalabe/hid/
