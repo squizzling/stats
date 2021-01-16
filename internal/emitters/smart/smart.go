@@ -23,7 +23,7 @@ type SmartEmitter struct {
 	pauseUntil time.Time
 }
 
-func NewEmitter(logger *zap.Logger, statsPool statser.Pool) emitter.Emitter {
+func NewEmitter(logger *zap.Logger, statsPool statser.Pool, opt emitter.OptProvider) emitter.Emitter {
 	return &SmartEmitter{
 		logger:     logger,
 		statsPool:  statsPool,

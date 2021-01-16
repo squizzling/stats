@@ -12,6 +12,7 @@ import (
 	_ "github.com/squizzling/stats/internal/emitters/ipmi"
 	_ "github.com/squizzling/stats/internal/emitters/meminfo"
 	_ "github.com/squizzling/stats/internal/emitters/pmbus"
+	_ "github.com/squizzling/stats/internal/emitters/procnetdev"
 	_ "github.com/squizzling/stats/internal/emitters/procstat"
 	_ "github.com/squizzling/stats/internal/emitters/smart"
 	_ "github.com/squizzling/stats/internal/emitters/sysfs"
@@ -96,7 +97,7 @@ func main() {
 		}
 		logger.Info("enabled", zap.String("emitter", key))
 
-		e := factory(logger, statsPool)
+		e := factory(logger, statsPool, opts)
 		if e == nil {
 			logger.Error("emitter creation failed", zap.String("emitter", key))
 		} else {

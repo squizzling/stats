@@ -45,12 +45,32 @@ func NextChunk(data []byte) ([]byte, []byte) {
 	return data, nil // no whitespace, return the whole chunk
 }
 
+func NextString(data []byte) (string, []byte, error) {
+	next, remainder := NextChunk(data)
+	if len(next) == 0 {
+		return "", nil, io.EOF
+	}
+	return string(next), remainder, nil
+}
+
 func NextInt64(data []byte) (int64, []byte, error) {
 	next, remainder := NextChunk(data)
 	if len(next) == 0 {
 		return 0, nil, io.EOF
 	}
 	value, err := strconv.ParseInt(string(next), 0, 64)
+	if err != nil {
+		return 0, nil, err
+	}
+	return value, remainder, nil
+}
+
+func NextUint64(data []byte) (uint64, []byte, error) {
+	next, remainder := NextChunk(data)
+	if len(next) == 0 {
+		return 0, nil, io.EOF
+	}
+	value, err := strconv.ParseUint(string(next), 0, 64)
 	if err != nil {
 		return 0, nil, err
 	}

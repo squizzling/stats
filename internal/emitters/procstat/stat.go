@@ -16,7 +16,7 @@ type ProcStatEmitter struct {
 	statsPool statser.Pool
 }
 
-func NewEmitter(logger *zap.Logger, statsPools statser.Pool) emitter.Emitter {
+func NewEmitter(logger *zap.Logger, statsPools statser.Pool, opt emitter.OptProvider) emitter.Emitter {
 	return &ProcStatEmitter{
 		logger:    logger,
 		statsPool: statsPools,

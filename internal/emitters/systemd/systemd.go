@@ -21,7 +21,7 @@ const (
 	propFailedUnits = "org.freedesktop.systemd1.Manager.NFailedUnits"
 )
 
-func NewEmitter(logger *zap.Logger, statsPool statser.Pool) emitter.Emitter {
+func NewEmitter(logger *zap.Logger, statsPool statser.Pool, opt emitter.OptProvider) emitter.Emitter {
 	b, err := dbus.SystemBus()
 	if err != nil {
 		logger.Error("failed to connect to system bus", zap.Error(err))

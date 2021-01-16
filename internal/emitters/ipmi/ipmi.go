@@ -21,7 +21,7 @@ type IPMIEmitter struct {
 	pauseUntil time.Time
 }
 
-func NewEmitter(logger *zap.Logger, statsPool statser.Pool) emitter.Emitter {
+func NewEmitter(logger *zap.Logger, statsPool statser.Pool, opt emitter.OptProvider) emitter.Emitter {
 	return &IPMIEmitter{
 		logger:     logger,
 		statsPool:  statsPool,

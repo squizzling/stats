@@ -8,7 +8,7 @@ import (
 )
 
 func Execute(command string, args ...string) ([]byte, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 1 * time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
 	cmd := exec.CommandContext(ctx, command, args...)

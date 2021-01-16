@@ -39,7 +39,7 @@ type device struct {
 	temperatures map[int]*sensor
 }
 
-func NewEmitter(logger *zap.Logger, statsPool statser.Pool) emitter.Emitter {
+func NewEmitter(logger *zap.Logger, statsPool statser.Pool, opt emitter.OptProvider) emitter.Emitter {
 	return &SysfsEmitter{
 		logger:    logger,
 		statsPool: statsPool,

@@ -6,7 +6,7 @@ import (
 
 var _ = statser.Pool(&fakePool{})
 
-type fakePool struct {}
+type fakePool struct{}
 
 func NewFakePool() statser.Pool {
 	return &fakePool{}

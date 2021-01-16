@@ -14,7 +14,7 @@ type MemInfoEmitter struct {
 	trackedMetrics map[string]string
 }
 
-func NewEmitter(logger *zap.Logger, statsPool statser.Pool) emitter.Emitter {
+func NewEmitter(logger *zap.Logger, statsPool statser.Pool, opt emitter.OptProvider) emitter.Emitter {
 	return &MemInfoEmitter{
 		logger:      logger,
 		statsClient: statsPool.Get(),

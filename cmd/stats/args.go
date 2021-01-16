@@ -7,17 +7,21 @@ import (
 	"time"
 
 	"github.com/jessevdk/go-flags"
+
+	"github.com/squizzling/stats/internal/emitters/procnetdev"
 )
 
 type Opts struct {
-	Target      string             `short:"t" long:"target"                   description:"target statsd address" `
-	Host        *string            `          long:"host"                     description:"local hostname"        `
-	List        bool               `short:"l" long:"list"                     description:"List emitters"         `
-	Disable     func(string) error `short:"d" long:"disable"                  description:"Disable emitter"       `
-	Enable      func(string) error `short:"e" long:"enable"                   description:"Enable emitter"        `
-	Interval    time.Duration      `short:"i" long:"interval" default:"1s"    description:"send interval"         `
-	Verbose     bool               `short:"v" long:"verbose"                  description:"Enable verbose logging"`
-	FakeStats   bool               `short:"f" long:"fake-stats"               description:"Log stats only"        `
+	Target    string             `short:"t" long:"target"                   description:"target statsd address" `
+	Host      *string            `          long:"host"                     description:"local hostname"        `
+	List      bool               `short:"l" long:"list"                     description:"List emitters"         `
+	Disable   func(string) error `short:"d" long:"disable"                  description:"Disable emitter"       `
+	Enable    func(string) error `short:"e" long:"enable"                   description:"Enable emitter"        `
+	Interval  time.Duration      `short:"i" long:"interval" default:"1s"    description:"send interval"         `
+	Verbose   bool               `short:"v" long:"verbose"                  description:"Enable verbose logging"`
+	FakeStats bool               `short:"f" long:"fake-stats"               description:"Log stats only"        `
+	procnetdev.ProcNetDevOpts
+
 	positional  []string
 	haveEnable  bool
 	haveDisable bool
@@ -34,6 +38,13 @@ func funcMakeEnableDisable(opts *Opts, enable bool) func(s string) error {
 		opts.selected[s] = struct{}{}
 		return nil
 	}
+}
+
+func (opts *Opts) Get(name string) interface{} {
+	if name == "procnetdev" {
+		return &opts.ProcNetDevOpts
+	}
+	return nil
 }
 
 func (opts *Opts) Validate() []string {
@@ -92,6 +103,7 @@ func parseArgs(args []string) *Opts {
 	var errors []string
 
 	errors = append(errors, opts.Validate()...)
+	errors = append(errors, opts.ProcNetDevOpts.Validate()...)
 
 	if len(errors) > 0 {
 		parser.WriteHelp(os.Stderr)

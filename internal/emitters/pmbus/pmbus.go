@@ -50,7 +50,7 @@ func (ce *CorsairEmitter) Emit() {
 	}
 }
 
-func NewEmitter(logger *zap.Logger, statsPool statser.Pool) emitter.Emitter {
+func NewEmitter(logger *zap.Logger, statsPool statser.Pool, opt emitter.OptProvider) emitter.Emitter {
 	dev := newPmbusDevice(logger, vidCorsair, pidHX750i)
 	if dev == nil {
 		return nil
