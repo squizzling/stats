@@ -11,6 +11,7 @@ import (
 
 	_ "github.com/squizzling/stats/internal/emitters/ipmi"
 	_ "github.com/squizzling/stats/internal/emitters/meminfo"
+	_ "github.com/squizzling/stats/internal/emitters/pmbus"
 	_ "github.com/squizzling/stats/internal/emitters/procstat"
 	_ "github.com/squizzling/stats/internal/emitters/smart"
 	_ "github.com/squizzling/stats/internal/emitters/sysfs"
