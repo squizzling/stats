@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -11,29 +10,63 @@ import (
 )
 
 type Opts struct {
-	Target        string             `short:"t" long:"target"   required:"true" description:"target statsd address" `
-	Host          *string            `          long:"host"                     description:"local hostname"        `
-	List          bool               `short:"l" long:"list"                     description:"List emitters"         `
-	Disable       func(string) error `short:"d" long:"disable"                  description:"Disable emitter"       `
-	Enable        func(string) error `short:"e" long:"enable"                   description:"Enable emitter"        `
-	Interval      time.Duration      `short:"i" long:"interval" default:"1s"    description:"send interval"         `
-	Verbose       bool               `short:"v" long:"verbose"                  description:"Enable verbose logging"`
-	enableDisable *bool
-	selected      map[string]struct{}
+	Target      string             `short:"t" long:"target"                   description:"target statsd address" `
+	Host        *string            `          long:"host"                     description:"local hostname"        `
+	List        bool               `short:"l" long:"list"                     description:"List emitters"         `
+	Disable     func(string) error `short:"d" long:"disable"                  description:"Disable emitter"       `
+	Enable      func(string) error `short:"e" long:"enable"                   description:"Enable emitter"        `
+	Interval    time.Duration      `short:"i" long:"interval" default:"1s"    description:"send interval"         `
+	Verbose     bool               `short:"v" long:"verbose"                  description:"Enable verbose logging"`
+	FakeStats   bool               `short:"f" long:"fake-stats"               description:"Log stats only"        `
+	positional  []string
+	haveEnable  bool
+	haveDisable bool
+	selected    map[string]struct{}
 }
 
 func funcMakeEnableDisable(opts *Opts, enable bool) func(s string) error {
 	return func(s string) error {
-		if opts.enableDisable == nil {
-			opts.enableDisable = &enable
+		if enable {
+			opts.haveEnable = true
+		} else if !enable {
+			opts.haveDisable = true
 		}
-		if *opts.enableDisable == enable {
-			opts.selected[s] = struct{}{}
-		} else {
-			return errors.New("enable and disable are mutually exclusive")
-		}
+		opts.selected[s] = struct{}{}
 		return nil
 	}
+}
+
+func (opts *Opts) Validate() []string {
+	var errors []string
+
+	if len(opts.positional) != 0 {
+		errors = append(errors, "no positional arguments are allowed")
+	}
+
+	if opts.haveEnable && opts.haveDisable {
+		errors = append(errors, "enable and disable are mutually exclusive")
+	}
+
+	if !opts.FakeStats {
+		if opts.Host == nil {
+			host, err := os.Hostname()
+			if err != nil {
+				errors = append(errors, fmt.Sprintf("unable to get hostname (%v), use --host", err))
+			} else {
+				opts.Host = &host
+			}
+		}
+
+		if opts.Target == "" {
+			errors = append(errors, "target is required when fake-stats is not enabled")
+		}
+
+		if strings.IndexByte(opts.Target, ':') == -1 {
+			opts.Target = opts.Target + ":8125"
+		}
+	}
+
+	return errors
 }
 
 func parseArgs(args []string) *Opts {
@@ -54,25 +87,19 @@ func parseArgs(args []string) *Opts {
 		parser.WriteHelp(os.Stdout)
 		os.Exit(0)
 	}
+	opts.positional = positional
 
-	if len(positional) != 0 {
-		// Near as I can tell there's no way to say no positional arguments allowed.
+	var errors []string
+
+	errors = append(errors, opts.Validate()...)
+
+	if len(errors) > 0 {
 		parser.WriteHelp(os.Stderr)
-		_, _ = fmt.Fprintf(os.Stderr, "\n\nno positional arguments allowed\n")
-		os.Exit(1)
-	}
-
-	if opts.Host == nil {
-		host, err := os.Hostname()
-		if err != nil {
-			_, _ = fmt.Fprintf(os.Stderr, "\n\nUnable to get hostname: %v\nUse --host to manually specify\n", err)
-			os.Exit(1)
+		_, _ = fmt.Fprintf(os.Stderr, "\n\n")
+		for _, err := range errors {
+			_, _ = fmt.Fprintf(os.Stderr, "error parsing command line: %s\n", err)
 		}
-		opts.Host = &host
-	}
-
-	if strings.IndexByte(opts.Target, ':') == -1 {
-		opts.Target = opts.Target + ":8125"
+		os.Exit(1)
 	}
 
 	return opts

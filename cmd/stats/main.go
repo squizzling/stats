@@ -17,6 +17,7 @@ import (
 	_ "github.com/squizzling/stats/internal/emitters/sysfs"
 	_ "github.com/squizzling/stats/internal/emitters/systemd"
 	_ "github.com/squizzling/stats/internal/emitters/zfs"
+	"github.com/squizzling/stats/pkg/statser"
 
 	"github.com/squizzling/stats/internal/istats"
 	"github.com/squizzling/stats/pkg/emitter"
@@ -74,14 +75,22 @@ func main() {
 	defer func() {
 		_ = logger.Sync()
 	}()
-	statsPool := istats.NewPool(createStatsClient(logger, opts.Target, *opts.Host))
+
+	var statsPool statser.Pool
+	if opts.FakeStats {
+		statsPool = istats.NewFakePool()
+		logger.Info("using logging statser")
+	} else {
+		statsPool = istats.NewPool(createStatsClient(logger, opts.Target, *opts.Host))
+		logger.Info("using statser", zap.String("target", opts.Target))
+	}
 
 	var emitters []emitter.Emitter
 	for key, factory := range sources.Sources {
-		if opts.enableDisable != nil {
+		if opts.haveEnable || opts.haveDisable {
 			_, ok := opts.selected[key]
 			delete(opts.selected, key)
-			if ok != *opts.enableDisable {
+			if ok != opts.haveEnable {
 				continue
 			}
 		}
