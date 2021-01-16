@@ -29,18 +29,20 @@ type ProcStat struct {
 
 func (ps *ProcStat) parseProcStatCpu(line []byte) *ProcStatCpu {
 	var cpu ProcStatCpu
-	var err error
-	cpu.User, line, _ = iio.NextInt64(line)
-	cpu.Nice, line, _ = iio.NextInt64(line)
-	cpu.System, line, _ = iio.NextInt64(line)
-	cpu.Idle, line, _ = iio.NextInt64(line)
-	cpu.IoWait, line, _ = iio.NextInt64(line)
-	cpu.Irq, line, _ = iio.NextInt64(line)
-	cpu.SoftIrq, line, _ = iio.NextInt64(line)
-	cpu.Steal, line, _ = iio.NextInt64(line)
-	cpu.Guest, line, _ = iio.NextInt64(line)
-	cpu.GuestNice, line, err = iio.NextInt64(line)
-	if err != nil {
+
+	c := iio.NewChunker(line)
+	cpu.User = c.NextInt64()
+	cpu.Nice = c.NextInt64()
+	cpu.System = c.NextInt64()
+	cpu.Idle = c.NextInt64()
+	cpu.IoWait = c.NextInt64()
+	cpu.Irq = c.NextInt64()
+	cpu.SoftIrq = c.NextInt64()
+	cpu.Steal = c.NextInt64()
+	cpu.Guest = c.NextInt64()
+	cpu.GuestNice = c.NextInt64()
+
+	if c.Err() != nil {
 		return nil
 	}
 	return &cpu

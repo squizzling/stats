@@ -28,28 +28,27 @@ type Interface struct {
 
 func parseInterface(line []byte) *Interface {
 	iface := &Interface{}
-	var err error
 
-	iface.name, line, _ = iio.NextString(line)
-	iface.name = strings.TrimRight(iface.name, ":")
-	iface.rxBytes, line, _ = iio.NextUint64(line)
-	iface.rxPackets, line, _ = iio.NextUint64(line)
-	iface.rxErrors, line, _ = iio.NextUint64(line)
-	iface.rxDropped, line, _ = iio.NextUint64(line)
-	iface.rxOverrun, line, _ = iio.NextUint64(line)
-	iface.rxFrame, line, _ = iio.NextUint64(line)
-	iface.rxCompressed, line, _ = iio.NextUint64(line)
-	iface.rxMulticast, line, _ = iio.NextUint64(line)
-	iface.txBytes, line, _ = iio.NextUint64(line)
-	iface.txPackets, line, _ = iio.NextUint64(line)
-	iface.txErrors, line, _ = iio.NextUint64(line)
-	iface.txDropped, line, _ = iio.NextUint64(line)
-	iface.txOverrun, line, _ = iio.NextUint64(line)
-	iface.txCollisions, line, _ = iio.NextUint64(line)
-	iface.txCarrier, line, _ = iio.NextUint64(line)
-	iface.txCompressed, line, err = iio.NextUint64(line)
+	c := iio.NewChunker(line)
+	iface.name = strings.TrimRight(c.NextString(), ":")
+	iface.rxBytes = c.NextUint64()
+	iface.rxPackets = c.NextUint64()
+	iface.rxErrors = c.NextUint64()
+	iface.rxDropped = c.NextUint64()
+	iface.rxOverrun = c.NextUint64()
+	iface.rxFrame = c.NextUint64()
+	iface.rxCompressed = c.NextUint64()
+	iface.rxMulticast = c.NextUint64()
+	iface.txBytes = c.NextUint64()
+	iface.txPackets = c.NextUint64()
+	iface.txErrors = c.NextUint64()
+	iface.txDropped = c.NextUint64()
+	iface.txOverrun = c.NextUint64()
+	iface.txCollisions = c.NextUint64()
+	iface.txCarrier = c.NextUint64()
+	iface.txCompressed = c.NextUint64()
 
-	if err != nil {
+	if c.Err() != nil {
 		return nil
 	}
 
