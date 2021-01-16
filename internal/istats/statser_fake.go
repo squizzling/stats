@@ -20,5 +20,5 @@ func (fs *fakeStatser) Gauge(metricName string, metricValue interface{}) {
 		sb.WriteString(fs.tags[i+1])
 	}
 
-	fmt.Printf("%s{%s}=%g\n", metricName, sb.String(), metricValue)
+	fmt.Printf("%s{%s}=%v\n", metricName, sb.String(), metricValue)
 }
