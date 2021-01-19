@@ -5,51 +5,19 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/squizzling/stats/internal/glob"
+	"github.com/squizzling/glob/pkg/glob"
+
 	"github.com/squizzling/stats/pkg/emitter"
 	"github.com/squizzling/stats/pkg/sources"
 	"github.com/squizzling/stats/pkg/statser"
 )
 
-type matchers struct {
-	include []glob.Matcher
-	exclude []glob.Matcher
-}
-
-func (m *matchers) Match(value string) bool {
-	for _, m := range m.exclude {
-		if m.Match(value) {
-			return false
-		}
-	}
-
-	for _, m := range m.include {
-		if m.Match(value) {
-			return true
-		}
-	}
-
-	// if there's no include listed, include everything
-	return len(m.include) == 0
-}
-
-func newMatchers(include []string, exclude []string) *matchers {
-	m := &matchers{}
-	for _, pattern := range include {
-		m.include = append(m.include, glob.NewMatcher(pattern))
-	}
-	for _, pattern := range exclude {
-		m.exclude = append(m.exclude, glob.NewMatcher(pattern))
-	}
-	return m
-}
-
 type ProcNetDevEmitter struct {
 	logger                *zap.Logger
 	statsPool             statser.Pool
-	hostInterfacePatterns *matchers
-	containerPatterns     *matchers
-	ethMatcher            *matchers
+	hostInterfacePatterns glob.Matcher
+	containerPatterns     glob.Matcher
+	ethMatcher            glob.Matcher
 }
 
 func NewEmitter(logger *zap.Logger, statsPools statser.Pool, opt emitter.OptProvider) emitter.Emitter {
@@ -57,9 +25,9 @@ func NewEmitter(logger *zap.Logger, statsPools statser.Pool, opt emitter.OptProv
 	pnde := &ProcNetDevEmitter{
 		logger:                logger,
 		statsPool:             statsPools,
-		hostInterfacePatterns: newMatchers(opts.IncludeInterface, opts.ExcludeInterface),
-		containerPatterns:     newMatchers(opts.IncludeContainer, opts.ExcludeContainer),
-		ethMatcher:            newMatchers([]string{"eth*"}, nil),
+		hostInterfacePatterns: glob.NewACL(opts.IncludeInterface, opts.ExcludeInterface, len(opts.IncludeInterface) == 0),
+		containerPatterns:     glob.NewACL(opts.IncludeContainer, opts.ExcludeContainer, len(opts.IncludeContainer) == 0),
+		ethMatcher:            glob.NewACL([]string{"eth*"}, nil, false),
 	}
 
 	return pnde

@@ -3,6 +3,8 @@ package procnetdev
 import (
 	"strings"
 
+	"github.com/squizzling/glob/pkg/glob"
+
 	"github.com/squizzling/stats/internal/iio"
 )
 
@@ -55,7 +57,7 @@ func parseInterface(line []byte) *Interface {
 	return iface
 }
 
-func (pnde *ProcNetDevEmitter) loadInterfaceStats(filename string, m *matchers) []*Interface {
+func (pnde *ProcNetDevEmitter) loadInterfaceStats(filename string, m glob.Matcher) []*Interface {
 	var is []*Interface
 	lines := iio.SplitLines(iio.ReadEntireFile(pnde.logger, filename))
 	for _, line := range lines {

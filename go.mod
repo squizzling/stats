@@ -7,6 +7,7 @@ require (
 	github.com/godbus/dbus v4.1.0+incompatible
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/karalabe/hid v1.0.0
+	github.com/squizzling/glob v0.0.0-20210119063301-812c1279f2fe
 	github.com/tilinna/clock v1.0.2
 	go.uber.org/zap v1.15.0
 	gopkg.in/alexcesaro/statsd.v2 v2.0.0 // indirect
