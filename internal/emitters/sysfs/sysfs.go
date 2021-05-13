@@ -46,7 +46,7 @@ func NewEmitter(logger *zap.Logger, statsPool statser.Pool, opt emitter.OptProvi
 	}
 }
 
-func (d *device) getTempratureSensor(index int) *sensor {
+func (d *device) getTemperatureSensor(index int) *sensor {
 	s, ok := d.temperatures[index]
 	if ok {
 		return s
@@ -114,7 +114,7 @@ func (se *SysfsEmitter) readDevice(devicePath string) *device {
 			// temperature sensor
 			switch sensorType {
 			case "temp":
-				s := dev.getTempratureSensor(sensorIndex)
+				s := dev.getTemperatureSensor(sensorIndex)
 				if sensorName == "label" {
 					s.label = valueString
 				} else {
