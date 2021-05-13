@@ -111,7 +111,7 @@ func main() {
 	}
 
 
-	tckr := ticker.NewAlignedTicker(10*time.Second, 1*time.Second)
+	tckr := ticker.NewAlignedTicker(opts.Interval, 1*time.Second)
 	for range tckr.C {
 		logger.Info("emitting")
 		for _, e := range emitters {
