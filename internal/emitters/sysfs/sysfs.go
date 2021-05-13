@@ -37,6 +37,7 @@ type device struct {
 	// |
 	// +-- Use a map, this is not a guarantee.
 	temperatures map[int]*sensor
+	pwms         map[int]*sensor
 }
 
 func NewEmitter(logger *zap.Logger, statsPool statser.Pool, opt emitter.OptProvider) emitter.Emitter {
@@ -59,10 +60,31 @@ func (d *device) getTemperatureSensor(index int) *sensor {
 	return s
 }
 
+func (d *device) getPWMSensor(index int) *sensor {
+	s, ok := d.pwms[index]
+	if ok {
+		return s
+	}
+	s = &sensor{
+		label:  fmt.Sprintf("unnamed_pwm_sensor_%d", index),
+		values: make(map[string]int64),
+	}
+	d.pwms[index] = s
+	return s
+}
+
 func (se *SysfsEmitter) parseFileName(devicePath, dataFileName string) (string, int, string, bool) {
 	prefixLength := 0
 	if strings.HasPrefix(dataFileName, "temp") {
 		prefixLength = 4
+	} else if strings.HasPrefix(dataFileName, "pwm") { // pwm sensors have no _suffix, so we fake it
+		prefixLength = 3
+		dataFileName += "_value"
+	} else if strings.HasPrefix(dataFileName, "in") {
+		se.logger.Debug("ignoring voltage", zap.String("device", devicePath), zap.String("file", dataFileName))
+		return "", 0, "", false
+	} else if strings.HasPrefix(dataFileName, "def") { // unsure what this is meant to define, but it's something with PWM
+		return "", 0, "", false
 	} else {
 		se.logger.Warn("sensor with unknown type", zap.String("device", devicePath), zap.String("file", dataFileName))
 		return "", 0, "", false
@@ -93,6 +115,7 @@ func (se *SysfsEmitter) readDevice(devicePath string) *device {
 	dataFiles := iio.ReadEntries(se.logger, devicePath)
 	dev := &device{
 		temperatures: make(map[int]*sensor),
+		pwms:         make(map[int]*sensor),
 	}
 	for _, dataFile := range dataFiles {
 		dataFileName := dataFile.Name()
@@ -115,6 +138,18 @@ func (se *SysfsEmitter) readDevice(devicePath string) *device {
 			switch sensorType {
 			case "temp":
 				s := dev.getTemperatureSensor(sensorIndex)
+				if sensorName == "label" {
+					s.label = valueString
+				} else {
+					value, err := strconv.ParseInt(valueString, 10, 64)
+					if err != nil {
+						se.logger.Error("failed to read sensor value", zap.String("device-path", devicePath), zap.String("data-file", dataFileName), zap.String("data", valueString), zap.Error(err))
+					} else {
+						s.values[sensorName] = value
+					}
+				}
+			case "pwm":
+				s := dev.getPWMSensor(sensorIndex)
 				if sensorName == "label" {
 					s.label = valueString
 				} else {
@@ -172,7 +207,18 @@ func (se *SysfsEmitter) Emit() {
 					).Gauge("sysfs.hwmon.temperature", float64(value)/1000)
 				}
 			}
+		}
 
+		for _, sensor := range device.pwms {
+			//fmt.Printf("dumping sensor %s\n", sensor.label)
+			for valueName, value := range sensor.values {
+				if valueName == "value" {
+					se.statsPool.Get(
+						"device", device.name,
+						"sensor", sensor.label,
+					).Gauge("sysfs.hwmon.pwm", (float64(value) / 255)*100)
+				}
+			}
 		}
 	}
 }
