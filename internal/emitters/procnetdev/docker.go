@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -33,6 +34,18 @@ var httpClient = &http.Client{
 
 		},
 	},
+}
+
+func dockerEnabled() bool {
+	_, err := os.Stat("/var/run/docker.sock")
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false
+		}
+		// fail hard, probably a permissions thing
+		panic(err)
+	}
+	return true
 }
 
 func queryDocker(url string, output interface{}) error {
@@ -67,6 +80,9 @@ func getDockerContainerDetail(id string) *containerDetail {
 }
 
 func getDockerContainerIDs() []string {
+	if !dockerEnabled() {
+		return nil
+	}
 	var containers []*container
 	if err := queryDocker("http://x/containers/json", &containers); err != nil {
 		panic(err)
