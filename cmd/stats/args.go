@@ -8,6 +8,7 @@ import (
 
 	"github.com/jessevdk/go-flags"
 
+	"github.com/squizzling/stats/internal/emitters/blockstat"
 	"github.com/squizzling/stats/internal/emitters/procnetdev"
 )
 
@@ -21,6 +22,7 @@ type Opts struct {
 	Verbose   bool               `short:"v" long:"verbose"                  description:"Enable verbose logging"`
 	FakeStats bool               `short:"f" long:"fake-stats"               description:"Log stats only"        `
 	procnetdev.ProcNetDevOpts
+	blockstat.BlockStatOpts
 
 	positional  []string
 	haveEnable  bool
@@ -41,10 +43,14 @@ func funcMakeEnableDisable(opts *Opts, enable bool) func(s string) error {
 }
 
 func (opts *Opts) Get(name string) interface{} {
-	if name == "procnetdev" {
+	switch name {
+	case "procnetdev":
 		return &opts.ProcNetDevOpts
+	case "blockstat":
+		return &opts.BlockStatOpts
+	default:
+		return nil
 	}
-	return nil
 }
 
 func (opts *Opts) Validate() []string {

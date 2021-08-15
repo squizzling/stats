@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
+	_ "github.com/squizzling/stats/internal/emitters/blockstat"
 	_ "github.com/squizzling/stats/internal/emitters/ipmi"
 	_ "github.com/squizzling/stats/internal/emitters/meminfo"
 	_ "github.com/squizzling/stats/internal/emitters/pmbus"

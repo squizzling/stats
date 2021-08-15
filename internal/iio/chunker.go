@@ -64,6 +64,15 @@ func (c *Chunker) NextInt64() int64 {
 	return value
 }
 
+func (c *Chunker) IsEOF() bool {
+	c.SkipWhitespace()
+	if c.err == io.EOF {
+		c.err = nil
+		return true
+	}
+	return false
+}
+
 func (c *Chunker) NextUint64() uint64 {
 	next := c.NextString()
 	if c.err != nil {
