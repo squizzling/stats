@@ -45,13 +45,12 @@ func createLogger(verbose bool) *zap.Logger {
 	return logger
 }
 
-func createStatsClient(logger *zap.Logger, target, host string) *statsd.Client {
+func createStatsClient(logger *zap.Logger, target string) *statsd.Client {
 	c, err := statsd.New(
 		statsd.Address(target),
 		statsd.Network("udp4"),
 		statsd.FlushPeriod(1*time.Second),
 		statsd.TagsFormat(statsd.Datadog),
-		statsd.Tags("host", host),
 	)
 	if err != nil {
 		logger.Error(
@@ -81,10 +80,10 @@ func main() {
 
 	var statsPool statser.Pool
 	if opts.FakeStats {
-		statsPool = istats.NewFakePool()
+		statsPool = istats.NewFakePool(*opts.Host)
 		logger.Info("using logging statser")
 	} else {
-		statsPool = istats.NewPool(createStatsClient(logger, opts.Target, *opts.Host))
+		statsPool = istats.NewPool(*opts.Host, createStatsClient(logger, opts.Target))
 		logger.Info("using statser", zap.String("target", opts.Target))
 	}
 

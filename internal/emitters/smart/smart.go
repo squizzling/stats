@@ -45,7 +45,7 @@ func (se *SmartEmitter) Emit() {
 		sn := d.information["Serial Number"]
 
 		for _, attribute := range d.attributeByName {
-			client := se.statsPool.Get("serial", sn, "attribute", attribute.name)
+			client := se.statsPool.Host("serial", sn, "attribute", attribute.name)
 			client.Gauge("smart.attribute", attribute.rawValue)
 			//fmt.Printf("%s %s %v\n", sn, attribute.name, attribute.rawValue)
 		}

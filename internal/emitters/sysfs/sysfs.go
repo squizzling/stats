@@ -201,7 +201,7 @@ func (se *SysfsEmitter) Emit() {
 			//fmt.Printf("dumping sensor %s\n", sensor.label)
 			for valueName, value := range sensor.values {
 				if valueName == "input" {
-					se.statsPool.Get(
+					se.statsPool.Host(
 						"device", device.name,
 						"sensor", sensor.label,
 					).Gauge("sysfs.hwmon.temperature", float64(value)/1000)
@@ -213,7 +213,7 @@ func (se *SysfsEmitter) Emit() {
 			//fmt.Printf("dumping sensor %s\n", sensor.label)
 			for valueName, value := range sensor.values {
 				if valueName == "value" {
-					se.statsPool.Get(
+					se.statsPool.Host(
 						"device", device.name,
 						"sensor", sensor.label,
 					).Gauge("sysfs.hwmon.pwm", (float64(value) / 255)*100)

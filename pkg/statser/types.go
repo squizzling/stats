@@ -1,8 +1,8 @@
 package statser
 
 type Pool interface {
-	Get(tags ...string) Statser
-	GetFake(tags ...string) Statser
+	Host(tags ...string) Statser
+	Global(tags ...string) Statser
 }
 
 type Statser interface {

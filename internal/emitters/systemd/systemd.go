@@ -30,7 +30,7 @@ func NewEmitter(logger *zap.Logger, statsPool statser.Pool, opt emitter.OptProvi
 
 	sde := &SystemdEmitter{
 		logger:      logger,
-		statsClient: statsPool.Get(),
+		statsClient: statsPool.Host(),
 		obj:         b.Object(destSystemd, pathSystemd),
 	}
 

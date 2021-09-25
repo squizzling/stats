@@ -59,14 +59,14 @@ func (pnde *ProcNetDevEmitter) Emit() {
 		}
 		is := pnde.loadInterfaceStats(fmt.Sprintf("/proc/%d/net/dev", d.State.Pid), pnde.ethMatcher)
 		for _, i := range is {
-			c := pnde.statsPool.Get("interface", i.name, "container", d.Name)
+			c := pnde.statsPool.Host("interface", i.name, "container", d.Name)
 			pnde.emitInterfaceStats(c, "net.docker.", i)
 		}
 	}
 
 	is := pnde.loadInterfaceStats("/proc/net/dev", pnde.hostInterfacePatterns)
 	for _, i := range is {
-		c := pnde.statsPool.Get("interface", i.name)
+		c := pnde.statsPool.Host("interface", i.name)
 		pnde.emitInterfaceStats(c, "net.host.", i)
 	}
 }

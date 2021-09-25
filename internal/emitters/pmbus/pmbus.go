@@ -27,20 +27,20 @@ func (ce *CorsairEmitter) Emit() {
 	}
 	defer dev.close()
 
-	client := ce.statsPool.Get()
+	client := ce.statsPool.Host()
 	b := dev.execReadFromPage(0, pmbusReadTemperature1)
-	ce.statsPool.Get("sensor", "1").Gauge("pmbus.temperature", linearToFloat64(b[2:4]))
+	ce.statsPool.Host("sensor", "1").Gauge("pmbus.temperature", linearToFloat64(b[2:4]))
 	b = dev.execReadFromPage(0, pmbusReadTemperature2)
-	ce.statsPool.Get("sensor", "2").Gauge("pmbus.temperature", linearToFloat64(b[2:4]))
+	ce.statsPool.Host("sensor", "2").Gauge("pmbus.temperature", linearToFloat64(b[2:4]))
 	b = dev.execReadFromPage(0, pmbusReadFanSpeed1)
-	ce.statsPool.Get("fan", "1").Gauge("pmbus.fanspeed", linearToFloat64(b[2:4]))
+	ce.statsPool.Host("fan", "1").Gauge("pmbus.fanspeed", linearToFloat64(b[2:4]))
 	b = dev.execReadFromPage(0, pmbusReadVin)
 	client.Gauge("pmbus.voltage_in", linearToFloat64(b[2:4]))
 	b = dev.execReadFromPage(0, pmbusMfrSpecific30)
 	client.Gauge("pmbus.power_in", linearToFloat64(b[2:4]))
 
 	for page, name := range []string{"12", "5", "3.3"} {
-		client = ce.statsPool.Get("rail", name)
+		client = ce.statsPool.Host("rail", name)
 		b = dev.execReadFromPage(byte(page), pmbusReadVOut)
 		client.Gauge("pmbus.voltage_out", linearToFloat64(b[2:4]))
 		b = dev.execReadFromPage(byte(page), pmbusReadIOut)

@@ -6,19 +6,23 @@ import (
 
 var _ = statser.Pool(&fakePool{})
 
-type fakePool struct{}
-
-func NewFakePool() statser.Pool {
-	return &fakePool{}
+type fakePool struct {
+	hostName string
 }
 
-func (f *fakePool) Get(tags ...string) statser.Statser {
-	return &fakeStatser{
-		tags: tags,
+func NewFakePool(hostName string) statser.Pool {
+	return &fakePool{
+		hostName: hostName,
 	}
 }
 
-func (f *fakePool) GetFake(tags ...string) statser.Statser {
+func (f *fakePool) Host(tags ...string) statser.Statser {
+	return &fakeStatser{
+		tags: append([]string{"host", f.hostName}, tags...),
+	}
+}
+
+func (f *fakePool) Global(tags ...string) statser.Statser {
 	return &fakeStatser{
 		tags: tags,
 	}

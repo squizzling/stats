@@ -39,7 +39,7 @@ func (bse *BlockStatEmitter) Emit() {
 			if bs.readIOs == 0 && bs.writeIOs == 0 {
 				continue
 			}
-			c := bse.statsPool.Get("device", bs.name)
+			c := bse.statsPool.Host("device", bs.name)
 			c.Gauge("blockstat.read.requests", bs.readIOs)
 			c.Gauge("blockstat.read.merges", bs.readMerges)
 			c.Gauge("blockstat.read.sectors", bs.readSectors)

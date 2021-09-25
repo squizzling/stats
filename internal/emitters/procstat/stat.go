@@ -53,10 +53,10 @@ func emitProcStatCpu(c statser.Statser, s string, cpu *ProcStatCpu) {
 func (pse *ProcStatEmitter) Emit() {
 	ps := LoadProcStat(pse.logger)
 	if ps.CPUTotal != nil {
-		emitProcStatCpu(pse.statsPool.Get(), "total", ps.CPUTotal)
+		emitProcStatCpu(pse.statsPool.Host(), "total", ps.CPUTotal)
 	}
 	for idx, perCPUStats := range ps.CPUs {
-		emitProcStatCpu(pse.statsPool.Get("cpu", strconv.Itoa(idx)), "per", perCPUStats)
+		emitProcStatCpu(pse.statsPool.Host("cpu", strconv.Itoa(idx)), "per", perCPUStats)
 	}
 }
 

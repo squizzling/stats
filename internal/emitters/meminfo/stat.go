@@ -17,7 +17,7 @@ type MemInfoEmitter struct {
 func NewEmitter(logger *zap.Logger, statsPool statser.Pool, opt emitter.OptProvider) emitter.Emitter {
 	return &MemInfoEmitter{
 		logger:      logger,
-		statsClient: statsPool.Get(),
+		statsClient: statsPool.Host(),
 		trackedMetrics: map[string]string{
 			"mem_total":     "MemTotal",
 			"mem_free":      "MemFree",

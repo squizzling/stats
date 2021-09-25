@@ -64,16 +64,16 @@ func (opts *Opts) Validate() []string {
 		errors = append(errors, "enable and disable are mutually exclusive")
 	}
 
-	if !opts.FakeStats {
-		if opts.Host == nil {
-			host, err := os.Hostname()
-			if err != nil {
-				errors = append(errors, fmt.Sprintf("unable to get hostname (%v), use --host", err))
-			} else {
-				opts.Host = &host
-			}
+	if opts.Host == nil {
+		host, err := os.Hostname()
+		if err != nil {
+			errors = append(errors, fmt.Sprintf("unable to get hostname (%v), use --host", err))
+		} else {
+			opts.Host = &host
 		}
+	}
 
+	if !opts.FakeStats {
 		if opts.Target == "" {
 			errors = append(errors, "target is required when fake-stats is not enabled")
 		}

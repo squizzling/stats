@@ -96,7 +96,7 @@ func (ie *IPMIEmitter) emitTemp(sensor map[string]string) {
 		return
 	}
 
-	client := ie.statsPool.Get("sensor", sensor["Name"])
+	client := ie.statsPool.Host("sensor", sensor["Name"])
 	client.Gauge("ipmi.temperature", sensorValue)
 }
 
@@ -114,7 +114,7 @@ func (ie *IPMIEmitter) emitVoltage(sensor map[string]string) {
 		return
 	}
 
-	client := ie.statsPool.Get("sensor", sensor["Name"])
+	client := ie.statsPool.Host("sensor", sensor["Name"])
 	client.Gauge("ipmi.voltage", sensorValue)
 }
 

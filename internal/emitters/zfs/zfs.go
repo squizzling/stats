@@ -68,11 +68,11 @@ func (e *ZFSEmitter) Emit() {
 	kst := e.statArc()
 	for k, v := range kst.UValues {
 		metricName := "zfs.arc." + k
-		e.statsPool.Get().Gauge(metricName, v)
+		e.statsPool.Host().Gauge(metricName, v)
 	}
 
 	for poolName, kst := range e.statPools() {
-		client := e.statsPool.Get("pool", poolName)
+		client := e.statsPool.Host("pool", poolName)
 		for k, v := range kst.UValues {
 			metricName := "zfs.io." + k
 			client.Gauge(metricName, v)
