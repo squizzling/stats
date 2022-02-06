@@ -9,6 +9,7 @@ import (
 	"github.com/jessevdk/go-flags"
 
 	"github.com/squizzling/stats/internal/emitters/blockstat"
+	"github.com/squizzling/stats/internal/emitters/bucketstat"
 	"github.com/squizzling/stats/internal/emitters/procnetdev"
 )
 
@@ -23,6 +24,7 @@ type Opts struct {
 	FakeStats bool               `short:"f" long:"fake-stats"               description:"Log stats only"        `
 	procnetdev.ProcNetDevOpts
 	blockstat.BlockStatOpts
+	bucketstat.BucketStatOpts
 
 	positional  []string
 	haveEnable  bool
@@ -48,6 +50,8 @@ func (opts *Opts) Get(name string) interface{} {
 		return &opts.ProcNetDevOpts
 	case "blockstat":
 		return &opts.BlockStatOpts
+	case "bucketstat":
+		return &opts.BucketStatOpts
 	default:
 		return nil
 	}
@@ -111,6 +115,7 @@ func parseArgs(args []string) *Opts {
 	errors = append(errors, opts.Validate()...)
 	errors = append(errors, opts.ProcNetDevOpts.Validate()...)
 	errors = append(errors, opts.BlockStatOpts.Validate()...)
+	errors = append(errors, opts.BucketStatOpts.Validate()...)
 
 	if len(errors) > 0 {
 		parser.WriteHelp(os.Stderr)

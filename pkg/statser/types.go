@@ -7,4 +7,5 @@ type Pool interface {
 
 type Statser interface {
 	Gauge(metricName string, value interface{})
+	Count(metricName string, value interface{})
 }

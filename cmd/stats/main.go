@@ -10,6 +10,7 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	_ "github.com/squizzling/stats/internal/emitters/blockstat"
+	_ "github.com/squizzling/stats/internal/emitters/bucketstat"
 	_ "github.com/squizzling/stats/internal/emitters/ipmi"
 	_ "github.com/squizzling/stats/internal/emitters/meminfo"
 	_ "github.com/squizzling/stats/internal/emitters/pmbus"
@@ -109,7 +110,6 @@ func main() {
 	for key, _ := range opts.selected {
 		logger.Warn("unrecognized emitter", zap.String("emitter", key))
 	}
-
 
 	tckr := ticker.NewAlignedTicker(opts.Interval, 1*time.Second)
 	for range tckr.C {
