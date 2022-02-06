@@ -110,6 +110,7 @@ func parseArgs(args []string) *Opts {
 
 	errors = append(errors, opts.Validate()...)
 	errors = append(errors, opts.ProcNetDevOpts.Validate()...)
+	errors = append(errors, opts.BlockStatOpts.Validate()...)
 
 	if len(errors) > 0 {
 		parser.WriteHelp(os.Stderr)
