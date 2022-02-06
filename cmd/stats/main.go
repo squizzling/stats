@@ -11,6 +11,7 @@ import (
 
 	_ "github.com/squizzling/stats/internal/emitters/blockstat"
 	_ "github.com/squizzling/stats/internal/emitters/bucketstat"
+	_ "github.com/squizzling/stats/internal/emitters/diskfree"
 	_ "github.com/squizzling/stats/internal/emitters/ipmi"
 	_ "github.com/squizzling/stats/internal/emitters/meminfo"
 	_ "github.com/squizzling/stats/internal/emitters/pmbus"
@@ -20,12 +21,12 @@ import (
 	_ "github.com/squizzling/stats/internal/emitters/sysfs"
 	_ "github.com/squizzling/stats/internal/emitters/systemd"
 	_ "github.com/squizzling/stats/internal/emitters/zfs"
-	"github.com/squizzling/stats/internal/ticker"
-	"github.com/squizzling/stats/pkg/statser"
 
 	"github.com/squizzling/stats/internal/istats"
+	"github.com/squizzling/stats/internal/ticker"
 	"github.com/squizzling/stats/pkg/emitter"
 	"github.com/squizzling/stats/pkg/sources"
+	"github.com/squizzling/stats/pkg/statser"
 )
 
 func createLogger(verbose bool) *zap.Logger {

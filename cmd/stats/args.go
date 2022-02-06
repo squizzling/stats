@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jessevdk/go-flags"
+	"github.com/squizzling/stats/internal/emitters/diskfree"
 
 	"github.com/squizzling/stats/internal/emitters/blockstat"
 	"github.com/squizzling/stats/internal/emitters/bucketstat"
@@ -25,6 +26,7 @@ type Opts struct {
 	procnetdev.ProcNetDevOpts
 	blockstat.BlockStatOpts
 	bucketstat.BucketStatOpts
+	diskfree.DiskFreeOpts
 
 	positional  []string
 	haveEnable  bool
@@ -52,6 +54,8 @@ func (opts *Opts) Get(name string) interface{} {
 		return &opts.BlockStatOpts
 	case "bucketstat":
 		return &opts.BucketStatOpts
+	case "diskfree":
+		return &opts.DiskFreeOpts
 	default:
 		return nil
 	}
@@ -116,6 +120,7 @@ func parseArgs(args []string) *Opts {
 	errors = append(errors, opts.ProcNetDevOpts.Validate()...)
 	errors = append(errors, opts.BlockStatOpts.Validate()...)
 	errors = append(errors, opts.BucketStatOpts.Validate()...)
+	errors = append(errors, opts.DiskFreeOpts.Validate()...)
 
 	if len(errors) > 0 {
 		parser.WriteHelp(os.Stderr)
