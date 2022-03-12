@@ -83,6 +83,10 @@ func (dfe *DiskFreeEmitter) Emit() {
 		availableBytes := fs.Bavail * uint64(fs.Bsize)
 		capacityBytes := fs.Blocks * uint64(fs.Bsize)
 		usedBytes := capacityBytes - availableBytes
+
+		fsType = strings.Replace(fsType, ",", "_", -1)
+		mountPoint = strings.Replace(mountPoint, ",", "_", -1)
+
 		c := dfe.statsPool.Host("fstype", fsType, "mount", mountPoint)
 		c.Gauge("diskfree.available", availableBytes)
 		c.Gauge("diskfree.capacity", capacityBytes)

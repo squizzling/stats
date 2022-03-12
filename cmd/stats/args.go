@@ -36,12 +36,14 @@ type Opts struct {
 
 func funcMakeEnableDisable(opts *Opts, enable bool) func(s string) error {
 	return func(s string) error {
-		if enable {
-			opts.haveEnable = true
-		} else if !enable {
-			opts.haveDisable = true
+		for _, emitter := range strings.Split(s, ",") {
+			if enable {
+				opts.haveEnable = true
+			} else if !enable {
+				opts.haveDisable = true
+			}
+			opts.selected[emitter] = struct{}{}
 		}
-		opts.selected[s] = struct{}{}
 		return nil
 	}
 }

@@ -3,6 +3,8 @@ package bucketstat
 import (
 	"net/url"
 	"strings"
+
+	"github.com/squizzling/stats/internal/args"
 )
 
 type BucketStatOpts struct {
@@ -18,6 +20,7 @@ func (opts *BucketStatOpts) Validate() []string {
 	if opts.Frequency <= 0 {
 		errs = append(errs, "bucketstat.frequency must be positive")
 	}
+	opts.Prefix = args.Flatten(opts.Prefix)
 	for _, prefix := range opts.Prefix {
 		u, err := url.Parse(prefix)
 		if err != nil {
