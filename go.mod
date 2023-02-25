@@ -13,6 +13,6 @@ require (
 	github.com/squizzling/glob v0.0.0-20210119063301-812c1279f2fe
 	github.com/tilinna/clock v1.0.2
 	go.uber.org/zap v1.15.0
-	golang.org/x/sys v0.0.0-20190412213103-97732733099d
+	golang.org/x/sys v0.1.0
 	gopkg.in/alexcesaro/statsd.v2 v2.0.0 // indirect
 )
